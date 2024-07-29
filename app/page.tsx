@@ -37,9 +37,9 @@ type FileOrNull = File | null;
 
 export default function GenerateMinutes() {
   const [file, setFile] = useState<FileOrNull>(null);
-  const [minutes, setMinutes] = useState<MinutesData | null>(null);
   const [critique, setCritique] = useState<string>('');
   const [processedCritiques, setProcessedCritiques] = useState<string[]>([]);
+  const [minutes, setMinutes] = useState<MinutesData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingCritique, setIsSendingCritique] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -217,7 +217,8 @@ export default function GenerateMinutes() {
             <div>
               <h3 className="font-semibold mb-2">Puntos clave:</h3>
               <ul className="list-disc pl-5">
-                {minutes.takeaways.map((takeaway, index) => (
+                {Array.isArray(minutes?.takeaways) &&
+                  minutes.takeaways.map((takeaway, index) => (
                   <li key={index}>{takeaway}</li>
                 ))}
               </ul>
