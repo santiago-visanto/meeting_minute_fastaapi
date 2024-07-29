@@ -3,7 +3,7 @@ import PyPDF2
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 import json
 from datetime import datetime
 from langgraph.graph import Graph
@@ -27,16 +27,29 @@ app.add_middleware(
 
 MODEL = 'command-r-plus'
 
+class Attendee(BaseModel):
+    name: str
+    position: str
+    role: str
+
+class Task(BaseModel):
+    responsible: str
+    date: str
+    description: str
+
 class MinutesData(BaseModel):
+    source: Optional[str] = None  # Añadido para manejar el texto fuente de la reunión
     title: str
     date: str
-    attendees: list
+    attendees: List[Attendee]
     summary: str
-    takeaways: list
-    conclusions: list
-    next_meeting: list
-    tasks: list
-    message: Optional[str] = None
+    takeaways: List[str]
+    conclusions: List[str]
+    next_meeting: List[str]
+    tasks: List[Task]
+    message: Optional[str] = None  # Ya estaba presente y es opcional
+    words: Optional[int] = None  # Añadido para especificar la longitud deseada del resumen
+    critique: Optional[str] = None
 
 def extract_text(content: bytes, filename: str) -> str:
     if filename.endswith('.pdf'):

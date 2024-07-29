@@ -198,7 +198,7 @@ export default function GenerateMinutes() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {minutes.attendees.map((attendee, index) => (
+                  {Array.isArray(minutes?.attendees) && minutes.attendees.map((attendee, index) => (
                     <TableRow key={index}>
                       <TableCell>{attendee.name}</TableCell>
                       <TableCell>{attendee.position}</TableCell>
