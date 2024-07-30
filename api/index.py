@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from typing import List, Optional
 import json
 from datetime import datetime
-from langgraph.graph import Graph
 from langchain_community.adapters.openai import convert_openai_messages
 from langchain_cohere import ChatCohere
 from dotenv import load_dotenv
@@ -38,7 +37,7 @@ class Task(BaseModel):
     description: str
 
 class MinutesData(BaseModel):
-    source: Optional[str] = None  # Añadido para manejar el texto fuente de la reunión
+    source: Optional[str] = None
     title: str
     date: str
     attendees: List[Attendee]
@@ -47,8 +46,8 @@ class MinutesData(BaseModel):
     conclusions: List[str]
     next_meeting: List[str]
     tasks: List[Task]
-    message: Optional[str] = None  # Ya estaba presente y es opcional
-    words: Optional[int] = None  # Añadido para especificar la longitud deseada del resumen
+    message: Optional[str] = None
+    words: Optional[int] = None
     critique: Optional[str] = None
 
 def extract_text(content: bytes, filename: str) -> str:
@@ -222,10 +221,7 @@ class StateMachine:
                 "words": words
             }
 
-            # Initial critique of the article
             article.update(self.critique_agent.critique(article))
-
-            # Final version of the article
             return self.writer_agent.run(article)
 
         except Exception as e:
@@ -234,18 +230,15 @@ class StateMachine:
 
 state_machine = StateMachine()
 
-
 @app.post("/generate_minutes")
 async def generate_minutes(file: UploadFile = File(...)):
     return state_machine.process(file)
-
 
 @app.post("/process_critique")
 async def process_critique(file: UploadFile = File(...), critique: str = Form(...), article: str = Form(...)):
     article_json = json.loads(article)
     article_json["critique"] = critique
 
-    # File processing
     content = await file.read()
     filename = file.filename
     the_text = extract_text(content, filename)
